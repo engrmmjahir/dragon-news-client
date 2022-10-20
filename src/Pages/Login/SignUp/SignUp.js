@@ -1,12 +1,14 @@
 import React, { useContext, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+import { Link } from 'react-router-dom';
 import { AuthContext } from '../../../contexts/AuthProvider/AuthProvider';
 
 const SignUp = () => {
     const [error, setError] = useState('');
+    const [accepted, setAccepted] = useState(false);
 
-    const { createUser } = useContext(AuthContext);
+    const { createUser, updateUserProfile } = useContext(AuthContext);
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -21,12 +23,28 @@ const SignUp = () => {
                 console.log(user);
                 setError('');
                 form.reset();
+                handleUpdateUserProfile(name, photo);
             })
             .catch(error => {
                 console.log(error);
                 setError(error.message);
             });
     }
+
+    const handleUpdateUserProfile = (name, photoURL) => {
+        const profile = {
+            displayName: name,
+            photoURL: photoURL
+        }
+        updateUserProfile(profile)
+            .then(() => { })
+            .catch(error => console.log(error));
+    }
+
+    const handleAccepted = (event) => {
+        setAccepted(event.target.checked);
+    }
+
     return (
         <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3" controlId="formBasicName">
@@ -51,7 +69,13 @@ const SignUp = () => {
                     {error}
                 </Form.Text>
             </Form.Group>
-            <Button variant="primary" type="submit">
+            <Form.Group className="mb-3" controlId="formBasicCheckbox">
+                <Form.Check
+                    type="checkbox"
+                    onClick={handleAccepted}
+                    label={<>Accept <Link to='/terms' className='text-decoration-none'>Terms and Conditions</Link></>} />
+            </Form.Group>
+            <Button variant="primary" type="submit" disabled={!accepted}>
                 Sign Up
             </Button>
         </Form>
